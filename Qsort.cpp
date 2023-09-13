@@ -1,47 +1,44 @@
 #include <stdio.h>
 #include <assert.h>
+#include <stdlib.h>
 #include "FunnyColours.h"
 
 const int size = 13;
 
-int  Exchange(int data[], int left, int right); // предназначена для обмена left и right
 void Sort(int data[], int left, int right);
+void PrintoutPartition(int data[], int left, int right);
 int  Partition(int data[], int first, int last);
-void PrintoutPartition(int data[], int left, int right); //предназначена для цветного вывода в случае ошибки
-
+int  Exchange(int data[], int left, int right);
 
 int main()
     {
     int data[size] = {4, 18, 9, 0, 90, 8, 15, 88, 9, 7, 18, 1, 22};
     int first = 0;
     int last = size - 1;
-    for (int i = 0; i < size; i++)
-        {
-        printf("%d ", data[i]);
-        }
+
+    PrintoutPartition(data, first, last);
     printf("\n");
+
     Sort(data, first, last);
     }
 
 //-----------------------------------------------------------------------------
 
-
-void Sort(int data[], int first, int last)
+void Sort(int data[], int left, int right)
     {
-    if (first < last)
+    assert(data != NULL);
+    if (left < right)
         {
-        int mid = Partition(data, first, last);
-        Sort(data, first, mid);
-        Sort(data, mid + 1, last);
+        int mid = Partition(data, left, right);
+        Sort(data, left, mid);
+        Sort(data, mid + 1, right);
         }
     }
 
 //-----------------------------------------------------------------------------
 
-int Partition(int data[], int first, int last)
+int Partition(int data[], int left, int right)
     {
-    int left = first;
-    int right = last;
     int mid = data[(left + right)/2];
     while(left <= right)
         {
@@ -57,15 +54,18 @@ int Partition(int data[], int first, int last)
             right--;
             PrintoutPartition(data, left, right);
             }
-        if (left >= right)
+        if (left < right)
+            {
+            Exchange(data, left, right);
+            left++;
+            right--;
+            }
+        else
             {
             PrintoutPartition(data, left, right);
             return (right);
             PrintoutPartition(data, left, right);
             }
-        Exchange(data, left, right);
-        left++;
-        right--;
         }
     PrintoutPartition(data, left, right);
     return right;
@@ -103,9 +103,11 @@ void PrintoutPartition(int data[], int left, int right)
 
 //-----------------------------------------------------------------------------
 
-int Exchange(int data[], int left, int right) //предназначено для обмена left и right через третий элемент
+int Exchange(int data[], int left, int right)
     {
     int third = data[left];
     data[left] = data[right];
     data[right] = third;
     }
+
+//-----------------------------------------------------------------------------
