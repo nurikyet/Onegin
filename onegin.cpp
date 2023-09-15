@@ -266,7 +266,7 @@ int Compare1(const void* x1, const void* x2)
 //-----------------------------------------------------------------------------
 
 int RightLeft(const char* str1, const char* str2)
-{
+    {
     size_t len1 = strlen(str1);
     size_t len2 = strlen(str2);
 
@@ -317,7 +317,7 @@ int RightLeft(const char* str1, const char* str2)
         return 0;
         }
 
-}
+    }
 
 
 
