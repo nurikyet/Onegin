@@ -110,9 +110,6 @@ void WorkWithText(char **text, char* buffer, int size)
         if (buffer[i] == '\n')
             {
             text[nline] = (buffer + i + 1);
-            //printf("Àäðåñ èç ìàññèâà óêàçàòåëåé text[%d] = %p\n", i, text[nline]);  //"Âûâîäèò àäðåñ èç ìàññèâà óêàçàòåëåé"
-            //printf("Àäðåñ èç char-ìàññèâà &buffer[%d+1] = %p\n", i, &buffer[i+1]); //"Âûâîäèò àäðåñ èç char-ìàññèâà"
-            //printf("Ñàìî çíà÷åíèå â char-ìàññèâå buffer[%d] = %c\n", i, buffer[i+1]);
             buffer[i] = '\0';
             nline++;
             }
@@ -222,12 +219,12 @@ int Partition(char **text, int left, int right)
     char *mid = text[(left + right)/2];
     while(left <= right)
         {
-        while ((Compare1(&text[left], &mid) < 0) && (right > left)) //(text[left] < mid)
+        while ((Compare1(&text[left], &mid) > 0) && (right > left)) //(text[left] < mid)
             {
             assert(right>left);
             left++;
             }
-        while ((Compare1(&text[right], &mid) > 0) && (right > left)) //(text[right] > mid)
+        while ((Compare1(&text[right], &mid) < 0) && (right > left)) //(text[right] > mid)
             {
             assert(right > left);
             right--;
