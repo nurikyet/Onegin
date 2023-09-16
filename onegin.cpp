@@ -5,9 +5,11 @@
 #include <assert.h>
 #include <string.h>
 
+// TODO: Can you read file name from command line interface?
 const char* MyFile = "Onegin (1).txt";
 const char* MyOutFile = "OneginFinal.txt";
 
+// TODO: split in multiple files
 void PrintSourceText(FILE *OneginFinal, char **text, int NumberOfRows);
 void SortingByQsort(char **text, int NumberOfRows);
 void WorkWithText(char **text, char* buffer, int size);
@@ -28,6 +30,8 @@ int  Exchange(char **text, int left, int right);
 int  Compare1(const void* x1, const void* x2);
 int  RightLeft(const char* str1, const char* str2);
 //=============================================================================
+
+
 
 int main()
     {
