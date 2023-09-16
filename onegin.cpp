@@ -5,12 +5,14 @@
 #include <assert.h>
 #include <string.h>
 
-const char* MyFile = "Hamlet";
+const char* MyFile = "Onegin (1).txt";
+const char* MyOutFile = "OneginFinal.txt";
 
-void PrintSourceText(char **text, int NumberOfRows);
+void PrintSourceText(FILE *OneginFinal, char **text, int NumberOfRows);
 void SortingByQsort(char **text, int NumberOfRows);
 void WorkWithText(char **text, char* buffer, int size);
 void Qsort(char **text, int NumberOfRows);
+void PrintingOriginalText(FILE *OneginFinal, char *buffer, int size);
 
 int  GetSizeFromFile(FILE *TextFile);
 int  GetNumberOfRows(char *buffer, int size);
@@ -46,16 +48,25 @@ int main()
 
     char **text = (char**) calloc(NumberOfRows, sizeof(char*));
     WorkWithText(text, buffer, size);
-    //PrintSourceText(text, NumberOfRows);
-    SortingByQsort(text, NumberOfRows);
 
-    PrintSourceText(text, NumberOfRows);
-    
+    SortingByQsort(text, NumberOfRows);
+    FILE *OneginFinal = fopen(MyOutFile, "w");
+    PrintSourceText(OneginFinal, text, NumberOfRows);
+
+    fprintf(OneginFinal, "\n");
+    fprintf(OneginFinal, "\n");
+
     Qsort(text, NumberOfRows);
-    
-    PrintSourceText(text, NumberOfRows);
+
+    PrintSourceText(OneginFinal, text, NumberOfRows);
+
+    fprintf(OneginFinal, "\n");
+    fprintf(OneginFinal, "\n");
+
+    PrintingOriginalText(OneginFinal, buffer, size);
 
     fclose(TextFile);
+    fclose(OneginFinal);
     free(text);
     free(buffer);
     }
@@ -71,12 +82,12 @@ int GetSizeFromFile(FILE *TextFile)
 
 //-----------------------------------------------------------------------------
 
-void PrintSourceText(char **text, int NumberOfRows)
+void PrintSourceText(FILE *OneginFinal, char **text, int NumberOfRows)
     {
-    //assert(**text != NULL);
+    assert(*text != NULL);
     for (int i = 0; i < NumberOfRows; i++)
         {
-        printf("%s\n", text[i]);
+        fprintf(OneginFinal, "%s\n", text[i]);
         }
     }
 
@@ -189,9 +200,9 @@ void Qsort(char **text, int NumberOfRows)
     {
     int first = 0;
     int last = NumberOfRows - 1;
-    
+
     Sort(text, first, last);
-    
+
     }
 
 
@@ -287,10 +298,18 @@ int RightLeft(const char* str1, const char* str2)
             if (isalpha(str1[i])) break;
             i--;
             }
+        if (isalpha(str1[i]) == 0)
+            {
+            i--;
+            }
 
         while (j > 0)
             {
             if (isalpha(str2[j])) break;
+            j--;
+            }
+        if (isalpha(str2[j]) == 0)
+            {
             j--;
             }
 
@@ -331,3 +350,18 @@ int RightLeft(const char* str1, const char* str2)
 
 
 //-----------------------------------------------------------------------------
+
+void PrintingOriginalText(FILE *OneginFinal, char *buffer, int size)
+    {
+    for (int i = 0; i < size; i++)
+        {
+        if (buffer[i] == '\0')
+            {
+            fprintf(OneginFinal,"%c", '\n');
+            }
+        else
+            {
+            fputc(buffer[i], OneginFinal);
+            }
+        }
+    }
