@@ -1,13 +1,11 @@
 #include <stdio.h>
-#include <sys\stat.h>
+#include <sys/stat.h>
 #include <stdlib.h>
 #include <cctype>
 #include <assert.h>
-#include <strings.h>
+#include <string.h>
 
-#include "TXLib.h"
-
-const char* MyFile = "textfile.txt";
+const char* MyFile = "Hamlet";
 
 void PrintSourceText(char **text, int NumberOfRows);
 void SortingByQsort(char **text, int NumberOfRows);
@@ -19,7 +17,6 @@ int  GetNumberOfRows(char *buffer, int size);
 int  Compare(const void * x1, const void * x2);
 int  LeftRight(const char* str1, const char* str2);
 
-
 //=============================================================================
 
 void Sort(char **text, int left, int right);
@@ -29,7 +26,6 @@ int  Exchange(char **text, int left, int right);
 int  Compare1(const void* x1, const void* x2);
 int  RightLeft(const char* str1, const char* str2);
 //=============================================================================
-
 
 int main()
     {
@@ -54,8 +50,9 @@ int main()
     SortingByQsort(text, NumberOfRows);
 
     PrintSourceText(text, NumberOfRows);
-
+    
     Qsort(text, NumberOfRows);
+    
     PrintSourceText(text, NumberOfRows);
 
     fclose(TextFile);
@@ -166,24 +163,24 @@ int LeftRight(const char* str1, const char* str2)
             j++;
             }
 
-        if (i >= len1 or j >= len2)
+        if ((i >= len1) || (j >= len2))
             {
             break;
             }
         }
 
-    if (i < len1 && j < len2)
-        {
-        return str1[i] <= str2[j];
-        }
-    else if (i >= len1)
-        {
-        return -1;
-        }
+    if ((i >= len1) && (j < len2))
+    {
+    return -1;
+    }
+    else if ((i >= len1) && (j >= len2))
+    {
+    return 0;
+    }
     else
-        {
-        return 0;
-        }
+    {
+    return 1;
+    }
     }
 
  //-----------------------------------------------------------------------------
@@ -192,9 +189,9 @@ void Qsort(char **text, int NumberOfRows)
     {
     int first = 0;
     int last = NumberOfRows - 1;
-
+    
     Sort(text, first, last);
-
+    
     }
 
 
@@ -203,8 +200,19 @@ void Qsort(char **text, int NumberOfRows)
 
 void Sort(char **text, int left, int right)
     {
-    printf("%d %d\n", left, right);
-    if (left < right)
+    // printf("%d %d\n", left, right);
+    if (left == right)
+        {
+        return;
+        }
+    else if (right - left == 1)
+        {
+        if (Compare1(text[left], text[right]) > 0)
+            {
+            Exchange(text, left, right);
+            }
+        }
+    else
         {
         int mid = Partition(text, left, right);
         Sort(text, left, mid);
@@ -219,14 +227,14 @@ int Partition(char **text, int left, int right)
     char *mid = text[(left + right)/2];
     while(left <= right)
         {
-        while ((Compare1(&text[left], &mid) > 0) && (right > left)) //(text[left] < mid)
+        while (Compare1(text[left], mid) < 0) //(text[left] < mid)
             {
-            assert(right>left);
+            //assert(right>left);
             left++;
             }
-        while ((Compare1(&text[right], &mid) < 0) && (right > left)) //(text[right] > mid)
+        while (Compare1(text[right], mid) > 0) //(text[right] > mid)
             {
-            assert(right > left);
+            //assert(right > left);
             right--;
             }
         if (left < right)
@@ -251,24 +259,26 @@ int Exchange(char **text, int left, int right)
     char* third = text[left];
     text[left] = text[right];
     text[right] = third;
+
+    return 0;
     }
 
 //-----------------------------------------------------------------------------
 
 int Compare1(const void* x1, const void* x2)
     {
-    return RightLeft( * ( char** ) x1, * ( char** ) x2 );
+    return RightLeft(( char* ) x1, ( char* ) x2 );
     }
 
 //-----------------------------------------------------------------------------
 
 int RightLeft(const char* str1, const char* str2)
     {
-    size_t len1 = strlen(str1);
-    size_t len2 = strlen(str2);
+    int len1 = strlen(str1);
+    int len2 = strlen(str2);
 
-    size_t i = len1-1;
-    size_t j = len2-1;
+    int i = len1-1;
+    int j = len2-1;
 
     while (true)
         {
@@ -298,24 +308,26 @@ int RightLeft(const char* str1, const char* str2)
             j--;
             }
 
-        if (i >= len1 or j >= len2) break;
+        if ((i < 0) || (j < 0))
+            {
+                break;
+            }
         }
 
-    if (i < len1 && j < len2)
-        {
-        return str1[i] <= str2[j];
-        }
-    else if (i >= len1)
+    if ((i < 0) && (j >= 0))
         {
         return -1;
         }
+    else if ((i >= 0) && (j < 0))
+    {
+    return 1;
+    }
     else
-        {
+    {
         return 0;
-        }
-
     }
 
+    }
 
 
 //-----------------------------------------------------------------------------
