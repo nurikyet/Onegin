@@ -5,7 +5,7 @@
 #include <assert.h>
 #include <string.h>
 
-const char* MyFile = "Hamlet";
+const char* MyFile = "textfile.txt";
 
 void PrintSourceText(char **text, int NumberOfRows);
 void SortingByQsort(char **text, int NumberOfRows);
@@ -207,7 +207,7 @@ void Sort(char **text, int left, int right)
         }
     else if (right - left == 1)
         {
-        if (Compare1(text[left], text[right]) > 0)
+        if (Compare1(&text[left], &text[right]) > 0)
             {
             Exchange(text, left, right);
             }
@@ -227,12 +227,12 @@ int Partition(char **text, int left, int right)
     char *mid = text[(left + right)/2];
     while(left <= right)
         {
-        while (Compare1(text[left], mid) < 0) //(text[left] < mid)
+        while (Compare1(&text[left], &mid) < 0) //(text[left] < mid)
             {
             //assert(right>left);
             left++;
             }
-        while (Compare1(text[right], mid) > 0) //(text[right] > mid)
+        while (Compare1(&text[right], &mid) > 0) //(text[right] > mid)
             {
             //assert(right > left);
             right--;
@@ -267,7 +267,7 @@ int Exchange(char **text, int left, int right)
 
 int Compare1(const void* x1, const void* x2)
     {
-    return RightLeft(( char* ) x1, ( char* ) x2 );
+    return RightLeft( * ( char** ) x1, * ( char** ) x2 );
     }
 
 //-----------------------------------------------------------------------------
@@ -276,10 +276,10 @@ int RightLeft(const char* str1, const char* str2)
     {
     int len1 = strlen(str1);
     int len2 = strlen(str2);
-
+    
     int i = len1-1;
     int j = len2-1;
-
+    
     while (true)
         {
         while (i > 0)
