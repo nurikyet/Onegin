@@ -4,8 +4,11 @@
 #include <cctype>
 #include <assert.h>
 
+
+// TODO: remove
 #include "TXLib.h"
 
+// TODO: Can you read file name from command line interface?
 const char* MyFile = "textfile.txt";
 
 void PrintSourceText(char **text, int NumberOfRows);
@@ -20,6 +23,8 @@ int  LeftRight(const char* str1, const char* str2);
 
 
 //=============================================================================
+// TODO: This file needs a lot of separation. Make sure to introduce it,
+//       when it works) 
 
 void Sort(char **text, int left, int right);
 
@@ -32,6 +37,8 @@ int  RightLeft(const char* str1, const char* str2);
 
 int main()
     {
+    // NOTE: keep in mind, when separating this file that your code
+    //       should be equally "interesting" everywhere.
     FILE *TextFile = fopen(MyFile, "rb");
     if (TextFile == NULL)
         {
@@ -41,11 +48,16 @@ int main()
 
     int size = GetSizeFromFile(TextFile);
 
+    // TODO: I would rather write this '\0' explicitly.
     char *buffer = (char*) calloc(size+1, sizeof(char));
     size_t nread = fread(buffer, sizeof(char), size, TextFile);
+    //     ^~~~~ TODO: naming style?
+
     assert( nread <= size);
+    //     ^ TODO: what is this space?
 
     int NumberOfRows = GetNumberOfRows(buffer, size);
+    //  ^~~~~~~~~~~~ TODO: naming style?
 
     char **text = (char**) calloc(NumberOfRows, sizeof(char*));
     WorkWithText(text, buffer, size);
@@ -100,7 +112,7 @@ int GetNumberOfRows(char *buffer, int size)
 
 //-----------------------------------------------------------------------------
 
-void WorkWithText(char **text, char* buffer, int size)
+void WorkWithText(char **text, char* buffer, int size) // TODO: rename
     {
     text[0] = buffer;
     int nline = 1;
@@ -120,7 +132,7 @@ void WorkWithText(char **text, char* buffer, int size)
 
 //-----------------------------------------------------------------------------
 
-void SortingByQsort(char **text, int NumberOfRows)
+void SortingByQsort(char **text, int NumberOfRows) // TODO: name?
     {
     qsort((void *)text, NumberOfRows, sizeof(char*), Compare);
     }
@@ -136,13 +148,13 @@ int Compare(const void * x1, const void * x2)
 
 int LeftRight(const char* str1, const char* str2)
     {
-    size_t len1 = strlen(str1);
+    size_t len1 = strlen(str1); // TODO: Why?
     size_t len2 = strlen(str2);
 
     size_t i = 0;
     size_t j = 0;
 
-    while (true)
+    while (true) // TODO: rethink
         {
         while (i < len1)
             {
@@ -154,7 +166,7 @@ int LeftRight(const char* str1, const char* str2)
             //printf("Сравниваем последний буквенный элемент в строке str1: %c\n", str1[i]);
         while (j < len2)
             {
-            if ('a' <= str2[j] and str2[j] <= 'z') break;
+	    if ('a' <= str2[j] and str2[j] <= 'z') break; // TODO: tolower?
             if ('A' <= str2[j] and str2[j] <= 'Z') break;
             //printf("Пропускаем элемент в строке str2: %c\n", str2[j]);
             j++;
@@ -197,7 +209,8 @@ int LeftRight(const char* str1, const char* str2)
 
  //-----------------------------------------------------------------------------
 
-void Qsort(char **text, int NumberOfRows)
+// TODO: docs
+void Qsort(char **text, int NumberOfRows /* TODO: can you pass comparator function? */ ) // TODO: rename
     {
     int first = 0;
     int last = NumberOfRows - 1;
@@ -212,7 +225,7 @@ void Qsort(char **text, int NumberOfRows)
 
 void Sort(char **text, int left, int right)
     {
-    printf("%d %d\n" left, right);
+    printf("%d %d\n", left, right);
     if (left < right)
         {
         int mid = Partition(text, left, right);
@@ -225,17 +238,17 @@ void Sort(char **text, int left, int right)
 
 int Partition(char **text, int left, int right)
     {
-    char *mid = text[(left + right)/2];
+    char *mid = text[(left + right)/2]; // TODO: you can avoid overflows with: (right - left) / 2 + left
     while(left <= right)
         {
         while (Compare1(&text[left], &mid) && (right > left)) //(text[left] < mid)
-            {
+	    { //                               ^~ TODO: it's better to write explicitly what you compare to "> 0"
             assert(right>left);
             left++;
             }
-        while (Compare1(&text[right], &mid) && (right > left)) //(text[right] > mid)
+	while (Compare1(&text[right], &mid) && (right > left)) //(text[right] > mid) TODO: (later) is right > left necessary?
             {
-            assert(right > left);
+	    assert(right > left); // TODO: Whyyyyyyyyyyyyyy
             right--;
             }
         if (left < right)
@@ -255,9 +268,9 @@ int Partition(char **text, int left, int right)
 
 //-----------------------------------------------------------------------------
 
-int Exchange(char **text, int left, int right)
+int Exchange(char **text, int left, int right) // TODO: can you make exchange universal?
     {
-    char* third = text[left];
+    char* third = text[left]; // TODO: can you generalize? And efficiently? NOTE: Duff's Device
     text[left] = text[right];
     text[right] = third;
     }
@@ -271,7 +284,7 @@ int Compare1(const void* x1, const void* x2)
 
 //-----------------------------------------------------------------------------
 
-int RightLeft(const char* str1, const char* str2)
+int RightLeft(const char* str1, const char* str2) // TODO: start over with this one...
     {
     size_t len1 = strlen(str1);
     size_t len2 = strlen(str2);
