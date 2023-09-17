@@ -5,33 +5,14 @@
 #include <assert.h>
 #include <string.h>
 
-// TODO: Can you read file name from command line interface?
+#include "OneginSortFile.h"
+#include "TextVariants.h"
+
 const char* MyFile = "Onegin (1).txt";
 const char* MyOutFile = "OneginFinal.txt";
 
-// TODO: split in multiple files
-void PrintSourceText(FILE *OneginFinal, char **text, int NumberOfRows);
-void SortingByQsort(char **text, int NumberOfRows);
-void WorkWithText(char **text, char* buffer, int size);
-void Qsort(char **text, int NumberOfRows);
-void PrintingOriginalText(FILE *OneginFinal, char *buffer, int size);
-
-int  GetSizeFromFile(FILE *TextFile);
-int  GetNumberOfRows(char *buffer, int size);
-int  Compare(const void * x1, const void * x2);
-int  LeftRight(const char* str1, const char* str2);
 
 //=============================================================================
-
-void Sort(char **text, int left, int right);
-
-int  Partition(char **text, int first, int last);
-int  Exchange(char **text, int left, int right);
-int  Compare1(const void* x1, const void* x2);
-int  RightLeft(const char* str1, const char* str2);
-//=============================================================================
-
-
 
 int main()
     {
@@ -43,28 +24,28 @@ int main()
         }
 
     int size = GetSizeFromFile(TextFile);
+    char *buffer = OpenBuffer(TextFile, size);
 
-    char *buffer = (char*) calloc(size+1, sizeof(char));
-    size_t nread = fread(buffer, sizeof(char), size, TextFile);
-    assert( nread <= size);
 
-    int NumberOfRows = GetNumberOfRows(buffer, size);
+    int nrows = GetNumberOfRows(buffer, size);
 
-    char **text = (char**) calloc(NumberOfRows, sizeof(char*));
-    WorkWithText(text, buffer, size);
+    char **text = (char**) calloc(nrows, sizeof(char*));
+    FillingText(text, buffer, size);
 
-    SortingByQsort(text, NumberOfRows);
+    SortByQsort(text, nrows);
     FILE *OneginFinal = fopen(MyOutFile, "w");
-    PrintSourceText(OneginFinal, text, NumberOfRows);
+    PrintSourceText(OneginFinal, text, nrows);
 
     fprintf(OneginFinal, "\n");
+    fprintf(OneginFinal, "---------------------------------------------------------------------------------------");
     fprintf(OneginFinal, "\n");
 
-    Qsort(text, NumberOfRows);
+    MyQuickSort(text, nrows);
 
-    PrintSourceText(OneginFinal, text, NumberOfRows);
+    PrintSourceText(OneginFinal, text, nrows);
 
     fprintf(OneginFinal, "\n");
+    fprintf(OneginFinal, "---------------------------------------------------------------------------------------");
     fprintf(OneginFinal, "\n");
 
     PrintingOriginalText(OneginFinal, buffer, size);
@@ -76,7 +57,7 @@ int main()
     }
 
 //-----------------------------------------------------------------------------
-
+/*
 int GetSizeFromFile(FILE *TextFile)
     {
     struct stat buff = {};
@@ -86,10 +67,10 @@ int GetSizeFromFile(FILE *TextFile)
 
 //-----------------------------------------------------------------------------
 
-void PrintSourceText(FILE *OneginFinal, char **text, int NumberOfRows)
+void PrintSourceText(FILE *OneginFinal, char **text, int nrows)
     {
     assert(*text != NULL);
-    for (int i = 0; i < NumberOfRows; i++)
+    for (int i = 0; i < nrows; i++)
         {
         fprintf(OneginFinal, "%s\n", text[i]);
         }
@@ -99,21 +80,21 @@ void PrintSourceText(FILE *OneginFinal, char **text, int NumberOfRows)
 
 int GetNumberOfRows(char *buffer, int size)
     {
-    assert(*buffer != NULL);
-    int NumberOfRows = 1;
+    assert(buffer != NULL);
+    int nrows = 1;
     for (int i = 0; i < size; i++)
         {
         if (buffer[i] == '\n')
             {
-            NumberOfRows++;
+            nrows++;
             }
         }
-    return NumberOfRows;
+    return nrows;
     }
 
 //-----------------------------------------------------------------------------
 
-void WorkWithText(char **text, char* buffer, int size)
+void FillingText(char **text, char* buffer, int size)
     {
     text[0] = buffer;
     int nline = 1;
@@ -130,9 +111,9 @@ void WorkWithText(char **text, char* buffer, int size)
 
 //-----------------------------------------------------------------------------
 
-void SortingByQsort(char **text, int NumberOfRows)
+void SortByQsort(char **text, int nrows)
     {
-    qsort((void *)text, NumberOfRows, sizeof(char*), Compare);
+    qsort((void *)text, nrows, sizeof(char*), Compare);
     }
 
 //-----------------------------------------------------------------------------
@@ -142,218 +123,7 @@ int Compare(const void * x1, const void * x2)
     return LeftRight( * ( char** ) x1, * ( char** ) x2 );
     }
 
-//-----------------------------------------------------------------------------
-
-int LeftRight(const char* str1, const char* str2)
-    {
-    size_t len1 = strlen(str1);
-    size_t len2 = strlen(str2);
-
-    size_t i = 0;
-    size_t j = 0;
-
-    while (true)
-        {
-        while (i < len1)
-            {
-            if (isalpha(str1[i])) break;
-            i++;
-            }
-        while (j < len2)
-            {
-            if (isalpha(str2[j])) break;
-            j++;
-            }
-        if (str1[i] > str2[j])
-            {
-            return 1;
-            }
-        else if (str1[i] < str2[j])
-            {
-            return -1;
-            }
-        else
-            {
-            i++;
-            j++;
-            }
-
-        if ((i >= len1) || (j >= len2))
-            {
-            break;
-            }
-        }
-
-    if ((i >= len1) && (j < len2))
-    {
-    return -1;
-    }
-    else if ((i >= len1) && (j >= len2))
-    {
-    return 0;
-    }
-    else
-    {
-    return 1;
-    }
-    }
-
  //-----------------------------------------------------------------------------
-
-void Qsort(char **text, int NumberOfRows)
-    {
-    int first = 0;
-    int last = NumberOfRows - 1;
-
-    Sort(text, first, last);
-
-    }
-
-
-//-----------------------------------------------------------------------------
-
-
-void Sort(char **text, int left, int right)
-    {
-    // printf("%d %d\n", left, right);
-    if (left == right)
-        {
-        return;
-        }
-    else if (right - left == 1)
-        {
-        if (Compare1(text[left], text[right]) > 0)
-            {
-            Exchange(text, left, right);
-            }
-        }
-    else
-        {
-        int mid = Partition(text, left, right);
-        Sort(text, left, mid);
-        Sort(text, mid + 1, right);
-        }
-    }
-
-//-----------------------------------------------------------------------------
-
-int Partition(char **text, int left, int right)
-    {
-    char *mid = text[(left + right)/2];
-    while(left <= right)
-        {
-        while (Compare1(text[left], mid) < 0) //(text[left] < mid)
-            {
-            //assert(right>left);
-            left++;
-            }
-        while (Compare1(text[right], mid) > 0) //(text[right] > mid)
-            {
-            //assert(right > left);
-            right--;
-            }
-        if (left < right)
-            {
-            Exchange(text, left, right);
-            left++;
-            right--;
-            }
-        else
-            {
-            return right;
-            }
-        }
-
-    return right;
-    }
-
-//-----------------------------------------------------------------------------
-
-int Exchange(char **text, int left, int right)
-    {
-    char* third = text[left];
-    text[left] = text[right];
-    text[right] = third;
-
-    return 0;
-    }
-
-//-----------------------------------------------------------------------------
-
-int Compare1(const void* x1, const void* x2)
-    {
-    return RightLeft(( char* ) x1, ( char* ) x2 );
-    }
-
-//-----------------------------------------------------------------------------
-
-int RightLeft(const char* str1, const char* str2)
-    {
-    int len1 = strlen(str1);
-    int len2 = strlen(str2);
-
-    int i = len1-1;
-    int j = len2-1;
-
-    while (true)
-        {
-        while (i > 0)
-            {
-            if (isalpha(str1[i])) break;
-            i--;
-            }
-        if (isalpha(str1[i]) == 0)
-            {
-            i--;
-            }
-
-        while (j > 0)
-            {
-            if (isalpha(str2[j])) break;
-            j--;
-            }
-        if (isalpha(str2[j]) == 0)
-            {
-            j--;
-            }
-
-        if (str1[i] > str2[j])
-            {
-            return 1;
-            }
-        else if (str1[i] < str2[j])
-            {
-            return -1;
-            }
-        else
-            {
-            i--;
-            j--;
-            }
-
-        if ((i < 0) || (j < 0))
-            {
-                break;
-            }
-        }
-
-    if ((i < 0) && (j >= 0))
-        {
-        return -1;
-        }
-    else if ((i >= 0) && (j < 0))
-    {
-    return 1;
-    }
-    else
-    {
-        return 0;
-    }
-
-    }
-
-
-//-----------------------------------------------------------------------------
 
 void PrintingOriginalText(FILE *OneginFinal, char *buffer, int size)
     {
@@ -369,3 +139,25 @@ void PrintingOriginalText(FILE *OneginFinal, char *buffer, int size)
             }
         }
     }
+
+//-----------------------------------------------------------------------------
+
+
+int LeftRight(const char* str1, const char* str2)
+    {
+    int first  = 0;
+    int second = 0;
+    while ( str1[first] != '\0' && isalpha(str1[first]) == 0)
+        {
+        first++;
+        }
+    while (str2[second] != '\0'  && isalpha(str2[second]) == 0)
+        {
+        second++;
+        }
+    return (str1[first] - str2[second]);
+    }
+
+*/
+//-----------------------------------------------------------------------------
+
