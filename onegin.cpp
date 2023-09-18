@@ -8,12 +8,11 @@
 #include "OneginSortFile.h"
 #include "TextVariants.h"
 
-
 static const char* MyOutFile = "OneginFinal.txt";
 
 int main()
     {
-    struct data info = {};
+    struct textdata info = {};
 
     FILE *TextFile = fopen(MyFile, "rb");
     if (TextFile == NULL)
@@ -25,33 +24,27 @@ int main()
     info.size = GetSizeFromFile(MyFile);
     info.buffer = OpenBuffer(TextFile, &info);
 
-
     info.nrows = GetNumberOfRows(&info);
 
-    info.text = (char**) calloc(info.nrows, sizeof(char*));
+    info.keeper = (struct lines*) calloc(info.nrows, sizeof(struct lines));
     FillingText(&info);
-
     SortByQsort(&info);
+
     FILE *OneginFinal = fopen(MyOutFile, "w");
-    //assert(OneginFinal);
     PrintSourceText(OneginFinal, &info);
 
-    //assert(fprintf(OneginFinal, "\n"));
     fprintf(OneginFinal, "---------------------------------------------------------------------------------------");
-    fprintf(OneginFinal, "\n");
 
     MyQuickSort(&info, Compare);
 
     PrintSourceText(OneginFinal, &info);
 
-    fprintf(OneginFinal, "\n");
     fprintf(OneginFinal, "---------------------------------------------------------------------------------------");
-    fprintf(OneginFinal, "\n");
 
-    PrintingOriginalText(OneginFinal, &info);
+    PrintOriginalText(OneginFinal, &info);
 
     fclose(TextFile);
     fclose(OneginFinal);
-    free(info.text);
+    free(info.keeper);
     free(info.buffer);
     }

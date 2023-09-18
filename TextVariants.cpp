@@ -19,21 +19,20 @@ int GetSizeFromFile(const char* MyFile)
 
 //-----------------------------------------------------------------------------
 
-void PrintSourceText(FILE *OneginFinal, struct data *info)
+void PrintSourceText(FILE *OneginFinal, struct textdata *info)
     {
-    assert(*(info -> text) != NULL);
     for (int i = 0; i < (info -> nrows); i++)
         {
-        fprintf(OneginFinal, "%s\n", (info -> text)[i]);
+        fprintf(OneginFinal, "%s\n", (info -> keeper)[i].string);
         }
     }
 
 //-----------------------------------------------------------------------------
 
-int GetNumberOfRows(struct data *info)
+int GetNumberOfRows(struct textdata *info)
     {
     assert((info -> buffer) != NULL);
-    info -> nrows = 1;
+    info -> nrows = 0;
     for (int i = 0; i < (info -> size); i++)
         {
         if ((info -> buffer)[i] == '\n')
@@ -41,33 +40,36 @@ int GetNumberOfRows(struct data *info)
             (info -> nrows)++;
             }
         }
-    if ((info -> buffer)[(info -> size) - 1] == '\n')
-        {
-        (info -> nrows)--;
-        }
+
     return (info -> nrows);
     }
 
 //-----------------------------------------------------------------------------
 
-void FillingText(struct data *info)
+void FillingText(struct textdata *info)
     {
-    (info -> text)[0] = info -> buffer;
+    ((info -> keeper)[0].string) = info -> buffer;
     int nline = 1;
-    for (int i = 0; i < (info -> size); i++)
+    int counter = 0;
+    for (int i = 0; (i < (info -> size)) && (nline < (info -> nrows)); i++)
         {
         if ((info -> buffer)[i] == '\n')
             {
-            (info -> text)[nline] = ((info -> buffer) + i + 1);
+            (info -> keeper)[nline - 1].len = counter;
+            counter = 0;
+            ((info -> keeper)[nline].string) = ((info -> buffer) + i + 1);
             (info -> buffer)[i] = '\0';
             nline++;
             }
+        counter++;
         }
+    (info -> keeper)[info -> nrows - 1].len = ((info -> buffer) + (info -> size) - 1) - (info -> keeper)[info -> nrows - 1].string;
     }
+
 
 //-----------------------------------------------------------------------------
 
-void PrintingOriginalText(FILE *OneginFinal, struct data *info)
+void PrintOriginalText(FILE *OneginFinal, struct textdata *info)
     {
     for (int i = 0; i < (info -> size); i++)
         {
@@ -84,11 +86,16 @@ void PrintingOriginalText(FILE *OneginFinal, struct data *info)
 
 //-----------------------------------------------------------------------------
 
-char* OpenBuffer( FILE* TextFile, struct data *info)
+char* OpenBuffer( FILE* TextFile, struct textdata *info)
     {
     (info -> buffer) = (char*) calloc((info -> size)+1, sizeof(char));
-    size_t nread = fread((info -> buffer), sizeof(char), (info -> size), TextFile);
-    assert((info -> buffer) != NULL);
+    (info -> size) = fread((info -> buffer), sizeof(char), (info -> size), TextFile);
+    if ((info -> buffer)[info -> size - 1] != '\n')
+        {
+        (info -> size)++;
+        (info -> buffer)[info -> size - 1] = '\n';
+        }
+
     return (info -> buffer);
     }
 
